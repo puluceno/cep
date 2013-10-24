@@ -2,7 +2,6 @@ package br.com.cep.rest;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -36,7 +35,7 @@ public class CepResourceRESTService {
     
     @SuppressWarnings("unchecked")
     @GET
-    @Produces("text/xml")
+    @Produces("application/json;charset=UTF-8")
     public Webservicecep findAddressByCEP(@QueryParam("cep") String cep, @QueryParam("url") URL url) {
 	try {
 	    
@@ -52,14 +51,16 @@ public class CepResourceRESTService {
 	    String parte2 = cep.substring(5);
 	    cep = parte1 + "-" + parte2;
 	    
-	    String state = (String) em.createNamedQuery(CepLogIndex.FIND_BY_UF).setParameter("prefix", prefix + "%")
+	    String state = (String) em.createNamedQuery(CepLogIndex.FIND_BY_UF).setParameter("prefix", prefix + Webservicecep.SQL_WILDCARD)
 		    .getSingleResult();
 	    state = state.substring(0, 1).toUpperCase() + state.substring(1).toLowerCase();
 	    
-	    String query2 = "SELECT address FROM " + state + " address WHERE address.cep = :cep";
-	    List<Webservicecep> addressList = new ArrayList<Webservicecep>();
+	    StringBuilder query2 = new StringBuilder();
+	    query2.append("SELECT address FROM ");
+	    query2.append(state);
+	    query2.append(" address WHERE address.cep = :cep");
 	    
-	    addressList = em.createQuery(query2).setParameter("cep", cep).getResultList();
+	    List<Webservicecep> addressList = em.createQuery(query2.toString()).setParameter("cep", cep).getResultList();
 	    
 	    Webservicecep completeAddress = null;
 	    if (!addressList.isEmpty()) {

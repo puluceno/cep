@@ -65,7 +65,6 @@
 			<groupId>commons-httpclient</groupId>
 			<artifactId>commons-httpclient</artifactId>
 			<version>3.1</version>
-			<scope>provided</scope>
 		</dependency>
 
 

@@ -10,7 +10,6 @@ public class Webservicecep implements Serializable {
     private static final long serialVersionUID = -7637290816156640407L;
     
     private String resultado;
-    private String resultado_txt;
     private String uf;
     private String cidade;
     private String bairro;
@@ -18,6 +17,7 @@ public class Webservicecep implements Serializable {
     private String logradouro;
     public static final String SUCCESS_CODE = "1";
     public static final String ERROR_CODE = "0";
+    public static final String SQL_WILDCARD = "%";
     
     public Webservicecep() {
     }
@@ -42,14 +42,6 @@ public class Webservicecep implements Serializable {
     
     public void setResultado(String resultado) {
 	this.resultado = resultado;
-    }
-    
-    public String getResultado_txt() {
-	return resultado_txt;
-    }
-    
-    public void setResultado_txt(String resultado_txt) {
-	this.resultado_txt = resultado_txt;
     }
     
     public String getUf() {

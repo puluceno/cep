@@ -33,6 +33,14 @@ public class CepResourceRESTService {
     @Inject
     Logger log;
     
+    /**
+     * Method responsible for querying and the databases and return the address to the provided cep.
+     * 
+     * @author pulu - 09/09/2013
+     * @param cep
+     * @param url
+     * @return address
+     */
     @SuppressWarnings("unchecked")
     @GET
     @Produces("application/json;charset=UTF-8")

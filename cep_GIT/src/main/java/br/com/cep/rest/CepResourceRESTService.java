@@ -2,7 +2,9 @@ package br.com.cep.rest;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,7 +36,8 @@ public class CepResourceRESTService {
     Logger log;
     
     /**
-     * Method responsible for querying and the databases and return the address to the provided cep.
+     * Method responsible for querying and the databases and return the address
+     * to the provided cep.
      * 
      * @author pulu - 09/09/2013
      * @param cep
@@ -59,8 +62,8 @@ public class CepResourceRESTService {
 	    String parte2 = cep.substring(5);
 	    cep = parte1 + "-" + parte2;
 	    
-	    String state = (String) em.createNamedQuery(CepLogIndex.FIND_BY_UF).setParameter("prefix", prefix + Webservicecep.SQL_WILDCARD)
-		    .getSingleResult();
+	    String state = (String) em.createNamedQuery(CepLogIndex.FIND_BY_UF)
+		    .setParameter("prefix", prefix + Webservicecep.SQL_WILDCARD).getSingleResult();
 	    state = state.substring(0, 1).toUpperCase() + state.substring(1).toLowerCase();
 	    
 	    StringBuilder query2 = new StringBuilder();
@@ -68,7 +71,8 @@ public class CepResourceRESTService {
 	    query2.append(state);
 	    query2.append(" address WHERE address.cep = :cep");
 	    
-	    List<Webservicecep> addressList = em.createQuery(query2.toString()).setParameter("cep", cep).getResultList();
+	    List<Webservicecep> addressList = em.createQuery(query2.toString()).setParameter("cep", cep)
+		    .getResultList();
 	    
 	    Webservicecep completeAddress = null;
 	    if (!addressList.isEmpty()) {
@@ -120,5 +124,34 @@ public class CepResourceRESTService {
 	    log.log(Level.WARNING, "Failed to parse html data. Possible reason: invalid cep.");
 	    return new Webservicecep(Webservicecep.ERROR_CODE);
 	}
+    }
+    
+    @SuppressWarnings("unchecked")
+    @GET
+    @Path("/neighborhood")
+    @Produces("application/json;charset=UTF-8")
+    public Map<String, List<String>> registerNeighborhoodsToNewCity(@QueryParam("state") String state,
+	    @QueryParam("cityName") String cityName) {
+	StringBuilder query = new StringBuilder();
+	query.append("(SELECT CAST(endereco.bairro AS char) AS b ");
+	query.append("FROM ");
+	query.append("CEP.");
+	query.append(state.toLowerCase());
+	query.append(" endereco ");
+	query.append("WHERE endereco.cidade = :cityName) ");
+	query.append("UNION ");
+	query.append("(SELECT CAST(bairro.nome AS char) AS b ");
+	query.append("FROM CEP2.bairros bairro ");
+	query.append("JOIN CEP2.cidades cidade ON cidade.id = bairro.cidade ");
+	query.append("WHERE cidade.nome = :cityName) ");
+	query.append("ORDER BY b ASC ");
+	
+	List<String> neighborhoodsList = em.createNativeQuery(query.toString()).setParameter("cityName", cityName)
+		.getResultList();
+	
+	Map<String, List<String>> neighborhoods = new HashMap<String, List<String>>();
+	neighborhoods.put("neighborhoods", neighborhoodsList);
+	
+	return neighborhoods;
     }
 }
